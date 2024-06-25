@@ -1,0 +1,17 @@
+{
+	"name": "DestinationDataset_qtl",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "adfbyexample20240625sa",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileSystem": "sampledata"
+			}
+		}
+	}
+}
