@@ -1,0 +1,42 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "DF-COOKBOOK"
+		},
+		"AzureSqlDatabase1_password": {
+			"value": ""
+		},
+		"OrchestrationAzureBlobStorage1_accountKey": {
+			"value": ""
+		},
+		"adfbyexample20240625sa_accountKey": {
+			"value": ""
+		},
+		"AzureSqlDatabase1_properties_typeProperties_server": {
+			"value": "adf-orchestration-sql-server202406241.database.windows.net"
+		},
+		"AzureSqlDatabase1_properties_typeProperties_database": {
+			"value": "AzureSQLDatabase"
+		},
+		"AzureSqlDatabase1_properties_typeProperties_userName": {
+			"value": "afara"
+		},
+		"OrchestrationAzureBlobStorage1_properties_typeProperties_url": {
+			"value": "https://saadorchestrationstorage.dfs.core.windows.net/"
+		},
+		"adfbyexample20240625sa_properties_typeProperties_url": {
+			"value": "https://adfbyexample20240625sa.dfs.core.windows.net/"
+		},
+		"trigger_blob_addes_properties_typeProperties_scope": {
+			"value": "/subscriptions/1de1c601-a1fc-4be0-b44f-bdb33bb4c6a9/resourceGroups/RG_COOKBOOK/providers/Microsoft.Storage/storageAccounts/saadorchestrationstorage"
+		},
+		"containerUri": {
+			"value": ""
+		},
+		"containerSasToken": {
+			"value": ""
+		}
+	}
+}
