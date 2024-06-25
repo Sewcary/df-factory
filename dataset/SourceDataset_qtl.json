@@ -5,6 +5,9 @@
 			"referenceName": "adfbyexample20240625sa",
 			"type": "LinkedServiceReference"
 		},
+		"folder": {
+			"name": "ADFByExample/Chapter2"
+		},
 		"annotations": [],
 		"type": "Binary",
 		"typeProperties": {
