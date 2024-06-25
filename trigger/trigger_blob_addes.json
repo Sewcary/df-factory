@@ -1,0 +1,24 @@
+{
+	"name": "trigger_blob_addes",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Started",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "pl_orchestration_recipe_7_trigger",
+					"type": "PipelineReference"
+				}
+			}
+		],
+		"type": "BlobEventsTrigger",
+		"typeProperties": {
+			"blobPathBeginsWith": "/data/blobs/",
+			"ignoreEmptyBlobs": true,
+			"scope": "/subscriptions/1de1c601-a1fc-4be0-b44f-bdb33bb4c6a9/resourceGroups/RG_COOKBOOK/providers/Microsoft.Storage/storageAccounts/saadorchestrationstorage",
+			"events": [
+				"Microsoft.Storage.BlobCreated"
+			]
+		}
+	}
+}

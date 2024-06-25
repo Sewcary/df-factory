@@ -1,0 +1,173 @@
+{
+	"name": "pl_orchestration_recipe_3",
+	"properties": {
+		"activities": [
+			{
+				"name": "CsvDataFolder Metadata",
+				"type": "GetMetadata",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "CsvDataFolder",
+						"type": "DatasetReference"
+					},
+					"fieldList": [
+						"itemName",
+						"lastModified",
+						"childItems"
+					],
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"recursive": true,
+						"enablePartitionDiscovery": false
+					},
+					"formatSettings": {
+						"type": "DelimitedTextReadSettings"
+					}
+				}
+			},
+			{
+				"name": "ForEachFileInDataFolder",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "FilterOnCsv",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('FilterOnCSV').output.Value",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "ForEach Metadata",
+							"type": "GetMetadata",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"dataset": {
+									"referenceName": "CsvData",
+									"type": "DatasetReference",
+									"parameters": {
+										"fileName": "@item().name"
+									}
+								},
+								"fieldList": [
+									"itemName",
+									"lastModified"
+								],
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							}
+						},
+						{
+							"name": "Stored procedure1",
+							"type": "SqlServerStoredProcedure",
+							"dependsOn": [
+								{
+									"activity": "ForEach Metadata",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"storedProcedureName": "[dbo].[InsertFileMetadata]",
+								"storedProcedureParameters": {
+									"FileName": {
+										"value": {
+											"value": "@{item().name}",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"ModifiedAt": {
+										"value": {
+											"value": "@activity('ForEach Metadata').output.lastModified",
+											"type": "Expression"
+										},
+										"type": "DateTime"
+									},
+									"UpdatedAt": {
+										"value": {
+											"value": "@utcnow()",
+											"type": "Expression"
+										},
+										"type": "DateTime"
+									}
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "AzureSqlDatabase1",
+								"type": "LinkedServiceReference"
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "FilterOnCsv",
+				"type": "Filter",
+				"dependsOn": [
+					{
+						"activity": "CsvDataFolder Metadata",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('CsvDataFolder Metadata').output.childItems",
+						"type": "Expression"
+					},
+					"condition": {
+						"value": "@endswith(item().name, '.csv')",
+						"type": "Expression"
+					}
+				}
+			}
+		],
+		"folder": {
+			"name": "COOKBOOK"
+		},
+		"annotations": [],
+		"lastPublishTime": "2024-06-25T09:31:14Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

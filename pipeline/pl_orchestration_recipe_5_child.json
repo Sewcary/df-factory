@@ -1,0 +1,87 @@
+{
+	"name": "pl_orchestration_recipe_5_child",
+	"properties": {
+		"activities": [
+			{
+				"name": "Get Email Recipients",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "SELECT * FROM [dbo].[EmailRecipient]",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "AzureSQLTables",
+						"type": "DatasetReference",
+						"parameters": {
+							"tableName": "EmailRecipient"
+						}
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "ForEach1",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Get Email Recipients",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Get Email Recipients').output.value",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "Send Email",
+							"type": "WebActivity",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"method": "POST",
+								"headers": {
+									"Content-Type": "application/json"
+								},
+								"url": "https://prod2-08.francecentral.logic.azure.com:443/workflows/3d587281150c46e3ab41c0110763913e/triggers/When_a_HTTP_request_is_received/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2FWhen_a_HTTP_request_is_received%2Frun&sv=1.0&sig=ZyAOWpG1X7XJZ18APtF1-QQFN-81ZyXDz5RKgSO8G2g",
+								"body": {
+									"value": "@json(concat('{\"emailAddress\": \"', item().emailAddress,'\", \"subject\": \"ADF Pipeline Failure\", \"messageBody\": \"ADFPipeline Failed\"}'))",
+									"type": "Expression"
+								}
+							}
+						}
+					]
+				}
+			}
+		],
+		"folder": {
+			"name": "COOKBOOK"
+		},
+		"annotations": [],
+		"lastPublishTime": "2024-06-25T09:31:14Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

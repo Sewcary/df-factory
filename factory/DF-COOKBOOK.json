@@ -1,0 +1,9 @@
+{
+	"name": "DF-COOKBOOK",
+	"location": "francecentral",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "f39e8900-6c99-4934-a675-27301132b466",
+		"tenantId": "d56f279e-fece-43c3-b051-d768d7881c47"
+	}
+}
