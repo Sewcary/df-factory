@@ -5,6 +5,9 @@
 		"factoryName": {
 			"value": "DF-COOKBOOK"
 		},
+		"AdfByExample_password": {
+			"value": ""
+		},
 		"AzureSqlDatabase1_password": {
 			"value": ""
 		},
@@ -13,6 +16,15 @@
 		},
 		"adfbyexample20240625sa_accountKey": {
 			"value": ""
+		},
+		"AdfByExample_properties_typeProperties_server": {
+			"value": "adf-orchestration-sql-server202406241.database.windows.net"
+		},
+		"AdfByExample_properties_typeProperties_database": {
+			"value": "AzureSQLDatabase"
+		},
+		"AdfByExample_properties_typeProperties_userName": {
+			"value": "afara"
 		},
 		"AzureSqlDatabase1_properties_typeProperties_server": {
 			"value": "adf-orchestration-sql-server202406241.database.windows.net"
