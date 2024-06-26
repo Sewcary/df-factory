@@ -1,0 +1,91 @@
+{
+	"name": "ImportSweetTreatsAndDesserts4All",
+	"properties": {
+		"activities": [
+			{
+				"name": "ImportSweetTreats",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "ImportSweetTreats_copy1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ImportSTFormatFolder",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"WildcardFolderPath": {
+							"value": "azure-data-factory-by-example-main/SampleData/Desserts4All",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "ImportSweetTreats_copy1",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ImportSTFormatFolder",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"WildcardFolderPath": {
+							"value": "azure-data-factory-by-example-main/SampleData/SweetTreats",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "Set variable1",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "ImportSweetTreats",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "ReturnedValue",
+					"value": {
+						"value": "@activity('ImportSweetTreats_copy1').output.pipelineReturnValue.PipelineRunSeqNo",
+						"type": "Expression"
+					}
+				}
+			}
+		],
+		"variables": {
+			"ReturnedValue": {
+				"type": "Integer"
+			}
+		},
+		"folder": {
+			"name": "ADFByExample/Chapter5"
+		},
+		"annotations": []
+	}
+}
