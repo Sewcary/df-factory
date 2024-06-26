@@ -3,16 +3,27 @@
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "AnyBlobStorage",
-			"type": "LinkedServiceReference"
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"ConnectionSecretName": {
+					"value": "@dataset().LinkedServiceConnectionSecret",
+					"type": "Expression"
+				}
+			}
 		},
 		"parameters": {
 			"Container": {
 				"type": "string"
 			},
 			"Directory": {
-				"type": "string"
+				"type": "string",
+				"defaultValue": "."
 			},
 			"File": {
+				"type": "string",
+				"defaultValue": "."
+			},
+			"LinkedServiceConnectionSecret": {
 				"type": "string"
 			}
 		},
