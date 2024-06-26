@@ -151,8 +151,20 @@
 				},
 				"inputs": [
 					{
-						"referenceName": "ABS_CSV_SweetTreats",
-						"type": "DatasetReference"
+						"referenceName": "ABS_CSV",
+						"type": "DatasetReference",
+						"parameters": {
+							"Container": "sampledata",
+							"Directory": {
+								"value": "@pipeline().parameters.Directory",
+								"type": "Expression"
+							},
+							"File": {
+								"value": "@pipeline().parameters.File",
+								"type": "Expression"
+							},
+							"LinkedServiceConnectionSecret": "dtlSecret"
+						}
 					}
 				],
 				"outputs": [
@@ -331,14 +343,81 @@
 					],
 					"setSystemVariable": true
 				}
+			},
+			{
+				"name": "Log pipeline failure",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "Import sales data",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[dbo].[LogPipelineEnd]",
+					"storedProcedureParameters": {
+						"FilesRead": {
+							"value": {
+								"value": "0",
+								"type": "Expression"
+							},
+							"type": "Int32"
+						},
+						"RowsCopied": {
+							"value": {
+								"value": "0",
+								"type": "Expression"
+							},
+							"type": "Int32"
+						},
+						"RowsRead": {
+							"value": {
+								"value": "0",
+								"type": "Expression"
+							},
+							"type": "Int32"
+						},
+						"RunEndDateTime": {
+							"value": "@utcnow()",
+							"type": "DateTime"
+						},
+						"RunSeqNo": {
+							"value": {
+								"value": "@variables('RunSeqNo')",
+								"type": "Expression"
+							},
+							"type": "Int32"
+						},
+						"RunStatus": {
+							"value": "Failed",
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase1",
+					"type": "LinkedServiceReference"
+				}
 			}
 		],
 		"parameters": {
 			"Directory": {
-				"type": "string"
+				"type": "string",
+				"defaultValue": "“azure-data-factory-by-example-main/ SampleData/NaughtyButNice"
 			},
 			"File": {
-				"type": "string"
+				"type": "string",
+				"defaultValue": "NBN-202006.csv"
 			}
 		},
 		"variables": {
