@@ -2,7 +2,7 @@
 	"name": "adfcookbookls",
 	"properties": {
 		"parameters": {
-			"secret": {
+			"ConnectionSecretName": {
 				"type": "string"
 			}
 		},
@@ -16,7 +16,10 @@
 					"referenceName": "adfbyexample2024kv",
 					"type": "LinkedServiceReference"
 				},
-				"secretName": "adfcookbookSecret"
+				"secretName": {
+					"value": "@linkedService().ConnectionSecretName",
+					"type": "Expression"
+				}
 			}
 		}
 	}
