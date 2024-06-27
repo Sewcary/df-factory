@@ -1,5 +1,5 @@
 {
-	"name": "ImportSTFormatFile",
+	"name": "ImportSTFormatFile_Divert",
 	"properties": {
 		"activities": [
 			{
@@ -40,6 +40,8 @@
 						"storeSettings": {
 							"type": "AzureBlobFSReadSettings",
 							"recursive": true,
+							"wildcardFolderPath": "@pipeline().parameters.Directory ",
+							"wildcardFileName": "*",
 							"enablePartitionDiscovery": false
 						},
 						"formatSettings": {
@@ -48,12 +50,26 @@
 					},
 					"sink": {
 						"type": "AzureSqlSink",
-						"preCopyScript": "TRUNCATE TABLE dbo.sales_LOAD",
 						"writeBehavior": "insert",
 						"sqlWriterUseTableLock": false,
 						"disableMetricsCollection": false
 					},
 					"enableStaging": false,
+					"enableSkipIncompatibleRow": true,
+					"logSettings": {
+						"enableCopyActivityLog": true,
+						"copyActivityLogSettings": {
+							"logLevel": "Warning",
+							"enableReliableLogging": false
+						},
+						"logLocationSettings": {
+							"linkedServiceName": {
+								"referenceName": "adfbyexample20240625sa",
+								"type": "LinkedServiceReference"
+							},
+							"path": "output/errors"
+						}
+					},
 					"translator": {
 						"type": "TabularTranslator",
 						"mappings": [
@@ -159,8 +175,7 @@
 								"value": "@pipeline().parameters.Directory",
 								"type": "Expression"
 							},
-							"LinkedServiceConnectionSecret": "dtlSecret",
-							"EscapeCharacter": "\\"
+							"LinkedServiceConnectionSecret": "dtlSecret"
 						}
 					}
 				],
@@ -176,7 +191,7 @@
 				"type": "SqlServerStoredProcedure",
 				"dependsOn": [
 					{
-						"activity": "Import sales data",
+						"activity": "If rows skipped",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -411,12 +426,197 @@
 					"referenceName": "AzureSqlDatabase1",
 					"type": "LinkedServiceReference"
 				}
+			},
+			{
+				"name": "If rows skipped",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "Stored procedure1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@greater(\nactivity('Import sales data').output.rowsSkipped\n, 0\n)",
+						"type": "Expression"
+					},
+					"ifTrueActivities": [
+						{
+							"name": "Copy data1",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "DelimitedTextSource",
+									"storeSettings": {
+										"type": "AzureBlobFSReadSettings",
+										"recursive": true,
+										"wildcardFolderPath": {
+											"value": "@join(skip(split(activity('Import sales data').output.logFilePath, '/'), 1), '/')",
+											"type": "Expression"
+										},
+										"wildcardFileName": "*",
+										"enablePartitionDiscovery": false
+									},
+									"formatSettings": {
+										"type": "DelimitedTextReadSettings"
+									}
+								},
+								"sink": {
+									"type": "AzureSqlSink",
+									"writeBehavior": "insert",
+									"sqlWriterUseTableLock": false
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"mappings": [
+										{
+											"source": {
+												"name": "Timestamp",
+												"type": "String",
+												"physicalType": "String"
+											},
+											"sink": {
+												"name": "Timestamp",
+												"type": "DateTime",
+												"physicalType": "datetime2"
+											}
+										},
+										{
+											"source": {
+												"name": "Level",
+												"type": "String",
+												"physicalType": "String"
+											},
+											"sink": {
+												"name": "Level",
+												"type": "String",
+												"physicalType": "nvarchar"
+											}
+										},
+										{
+											"source": {
+												"name": "OperationName",
+												"type": "String",
+												"physicalType": "String"
+											},
+											"sink": {
+												"name": "OperationName",
+												"type": "String",
+												"physicalType": "nvarchar"
+											}
+										},
+										{
+											"source": {
+												"name": "OperationItem",
+												"type": "String",
+												"physicalType": "String"
+											},
+											"sink": {
+												"name": "OperationItem",
+												"type": "String",
+												"physicalType": "nvarchar"
+											}
+										},
+										{
+											"source": {
+												"name": "Message",
+												"type": "String",
+												"physicalType": "String"
+											},
+											"sink": {
+												"name": "Message",
+												"type": "String",
+												"physicalType": "nvarchar"
+											}
+										}
+									],
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "ABS_CSV",
+									"type": "DatasetReference",
+									"parameters": {
+										"Container": "output",
+										"Directory": ".",
+										"LinkedServiceConnectionSecret": "dtlSecret",
+										"EscapeCharacter": "\""
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "AzureSQLTables",
+									"type": "DatasetReference",
+									"parameters": {
+										"tableName": "LoadingError"
+									}
+								}
+							]
+						}
+					]
+				}
+			},
+			{
+				"name": "Stored procedure1",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "Import sales data",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[dbo].[PersistLoadedSales]",
+					"storedProcedureParameters": {
+						"runSeqNo": {
+							"value": {
+								"value": "@variables('RunSeqNo')",
+								"type": "Expression"
+							},
+							"type": "Int32"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AdfByExample",
+					"type": "LinkedServiceReference"
+				}
 			}
 		],
 		"parameters": {
 			"Directory": {
 				"type": "string",
-				"defaultValue": "“azure-data-factory-by-example-main/ SampleData/NaughtyButNice"
+				"defaultValue": "azure-data-factory-by-example-main/SampleData/NaughtyButNice"
 			},
 			"File": {
 				"type": "string",
