@@ -2,14 +2,8 @@
 	"name": "ABS_CSV",
 	"properties": {
 		"linkedServiceName": {
-			"referenceName": "AnyBlobStorage",
-			"type": "LinkedServiceReference",
-			"parameters": {
-				"ConnectionSecretName": {
-					"value": "@dataset().LinkedServiceConnectionSecret",
-					"type": "Expression"
-				}
-			}
+			"referenceName": "AzureDataLakeStorage1",
+			"type": "LinkedServiceReference"
 		},
 		"parameters": {
 			"Container": {
@@ -25,6 +19,10 @@
 			"EscapeCharacter": {
 				"type": "string",
 				"defaultValue": "\\"
+			},
+			"fileName": {
+				"type": "string",
+				"defaultValue": "Airlines.csv"
 			}
 		},
 		"folder": {
@@ -35,6 +33,10 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@dataset().fileName",
+					"type": "Expression"
+				},
 				"folderPath": {
 					"value": "@dataset().Directory",
 					"type": "Expression"
