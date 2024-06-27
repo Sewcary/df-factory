@@ -1,0 +1,33 @@
+{
+	"name": "AzureSqlTable1",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AdfByExample",
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"domainname": "adf-orchestration-sql-server202406241.database.windows.net",
+				"Username": "afara",
+				"Password": "Nourou27",
+				"dbName": "AzureSQLDatabase"
+			}
+		},
+		"parameters": {
+			"tableName": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "ADFByExample"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": {
+				"value": "@dataset().tableName",
+				"type": "Expression"
+			}
+		}
+	}
+}
