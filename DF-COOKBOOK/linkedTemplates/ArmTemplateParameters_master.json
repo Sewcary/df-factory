@@ -5,7 +5,7 @@
 		"factoryName": {
 			"value": "DF-COOKBOOK"
 		},
-		"AdfByExample_password": {
+		"AzureDataLakeStorage1_accountKey": {
 			"value": ""
 		},
 		"AzureSqlDatabase1_password": {
@@ -18,13 +18,22 @@
 			"value": ""
 		},
 		"AdfByExample_properties_typeProperties_server": {
-			"value": "adf-orchestration-sql-server202406241.database.windows.net"
+			"value": "@{linkedService().domainname}"
 		},
 		"AdfByExample_properties_typeProperties_database": {
-			"value": "AzureSQLDatabase"
+			"value": "@{linkedService().dbName}"
 		},
 		"AdfByExample_properties_typeProperties_userName": {
-			"value": "afara"
+			"value": "@{linkedService().Username}"
+		},
+		"AnyBlobStorage_properties_typeProperties_url": {
+			"value": "https://adfbyexample20240625sa.dfs.core.windows.net"
+		},
+		"AzureDataLakeStorage1_properties_typeProperties_url": {
+			"value": "https://saadorchestrationstorage.dfs.core.windows.net/"
+		},
+		"AzureDataLakeStoragelskv_properties_typeProperties_url": {
+			"value": "https://adfbyexample20240625sa.dfs.core.windows.net"
 		},
 		"AzureSqlDatabase1_properties_typeProperties_server": {
 			"value": "adf-orchestration-sql-server202406241.database.windows.net"
@@ -40,6 +49,12 @@
 		},
 		"adfbyexample20240625sa_properties_typeProperties_url": {
 			"value": "https://adfbyexample20240625sa.dfs.core.windows.net/"
+		},
+		"adfbyexample2024kv_properties_typeProperties_baseUrl": {
+			"value": "https://ADFBYEXAMPLE2024KV.vault.azure.net/"
+		},
+		"adfcookbookls_properties_typeProperties_url": {
+			"value": "https://saadorchestrationstorage.dfs.core.windows.net"
 		},
 		"trigger_blob_addes_properties_typeProperties_scope": {
 			"value": "/subscriptions/1de1c601-a1fc-4be0-b44f-bdb33bb4c6a9/resourceGroups/RG_COOKBOOK/providers/Microsoft.Storage/storageAccounts/saadorchestrationstorage"

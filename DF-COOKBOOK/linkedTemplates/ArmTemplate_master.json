@@ -7,9 +7,9 @@
 			"metadata": "Data Factory name",
 			"defaultValue": "DF-COOKBOOK"
 		},
-		"AdfByExample_password": {
+		"AzureDataLakeStorage1_accountKey": {
 			"type": "secureString",
-			"metadata": "Secure string for 'password' of 'AdfByExample'"
+			"metadata": "Secure string for 'accountKey' of 'AzureDataLakeStorage1'"
 		},
 		"AzureSqlDatabase1_password": {
 			"type": "secureString",
@@ -25,15 +25,27 @@
 		},
 		"AdfByExample_properties_typeProperties_server": {
 			"type": "string",
-			"defaultValue": "adf-orchestration-sql-server202406241.database.windows.net"
+			"defaultValue": "@{linkedService().domainname}"
 		},
 		"AdfByExample_properties_typeProperties_database": {
 			"type": "string",
-			"defaultValue": "AzureSQLDatabase"
+			"defaultValue": "@{linkedService().dbName}"
 		},
 		"AdfByExample_properties_typeProperties_userName": {
 			"type": "string",
-			"defaultValue": "afara"
+			"defaultValue": "@{linkedService().Username}"
+		},
+		"AnyBlobStorage_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://adfbyexample20240625sa.dfs.core.windows.net"
+		},
+		"AzureDataLakeStorage1_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://saadorchestrationstorage.dfs.core.windows.net/"
+		},
+		"AzureDataLakeStoragelskv_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://adfbyexample20240625sa.dfs.core.windows.net"
 		},
 		"AzureSqlDatabase1_properties_typeProperties_server": {
 			"type": "string",
@@ -54,6 +66,14 @@
 		"adfbyexample20240625sa_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://adfbyexample20240625sa.dfs.core.windows.net/"
+		},
+		"adfbyexample2024kv_properties_typeProperties_baseUrl": {
+			"type": "string",
+			"defaultValue": "https://ADFBYEXAMPLE2024KV.vault.azure.net/"
+		},
+		"adfcookbookls_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://saadorchestrationstorage.dfs.core.windows.net"
 		},
 		"trigger_blob_addes_properties_typeProperties_scope": {
 			"type": "string",
@@ -86,8 +106,8 @@
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
 					},
-					"AdfByExample_password": {
-						"value": "[parameters('AdfByExample_password')]"
+					"AzureDataLakeStorage1_accountKey": {
+						"value": "[parameters('AzureDataLakeStorage1_accountKey')]"
 					},
 					"AzureSqlDatabase1_password": {
 						"value": "[parameters('AzureSqlDatabase1_password')]"
@@ -107,6 +127,9 @@
 					"AdfByExample_properties_typeProperties_userName": {
 						"value": "[parameters('AdfByExample_properties_typeProperties_userName')]"
 					},
+					"AzureDataLakeStorage1_properties_typeProperties_url": {
+						"value": "[parameters('AzureDataLakeStorage1_properties_typeProperties_url')]"
+					},
 					"AzureSqlDatabase1_properties_typeProperties_server": {
 						"value": "[parameters('AzureSqlDatabase1_properties_typeProperties_server')]"
 					},
@@ -122,12 +145,64 @@
 					"adfbyexample20240625sa_properties_typeProperties_url": {
 						"value": "[parameters('adfbyexample20240625sa_properties_typeProperties_url')]"
 					},
+					"adfbyexample2024kv_properties_typeProperties_baseUrl": {
+						"value": "[parameters('adfbyexample2024kv_properties_typeProperties_baseUrl')]"
+					},
 					"trigger_blob_addes_properties_typeProperties_scope": {
 						"value": "[parameters('trigger_blob_addes_properties_typeProperties_scope')]"
 					}
 				}
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "DF-COOKBOOK_ArmTemplate_1",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_1.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					},
+					"AnyBlobStorage_properties_typeProperties_url": {
+						"value": "[parameters('AnyBlobStorage_properties_typeProperties_url')]"
+					},
+					"AzureDataLakeStoragelskv_properties_typeProperties_url": {
+						"value": "[parameters('AzureDataLakeStoragelskv_properties_typeProperties_url')]"
+					},
+					"adfcookbookls_properties_typeProperties_url": {
+						"value": "[parameters('adfcookbookls_properties_typeProperties_url')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'DF-COOKBOOK_ArmTemplate_0')]"
+			]
+		},
+		{
+			"name": "DF-COOKBOOK_ArmTemplate_2",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_2.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'DF-COOKBOOK_ArmTemplate_1')]"
+			]
 		}
 	]
 }

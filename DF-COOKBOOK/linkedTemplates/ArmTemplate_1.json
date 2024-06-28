@@ -7,83 +7,153 @@
 			"metadata": "Data Factory name",
 			"defaultValue": "DF-COOKBOOK"
 		},
-		"AzureDataLakeStorage1_accountKey": {
-			"type": "secureString",
-			"metadata": "Secure string for 'accountKey' of 'AzureDataLakeStorage1'"
-		},
-		"AzureSqlDatabase1_password": {
-			"type": "secureString",
-			"metadata": "Secure string for 'password' of 'AzureSqlDatabase1'"
-		},
-		"OrchestrationAzureBlobStorage1_accountKey": {
-			"type": "secureString",
-			"metadata": "Secure string for 'accountKey' of 'OrchestrationAzureBlobStorage1'"
-		},
-		"adfbyexample20240625sa_accountKey": {
-			"type": "secureString",
-			"metadata": "Secure string for 'accountKey' of 'adfbyexample20240625sa'"
-		},
-		"AdfByExample_properties_typeProperties_server": {
-			"type": "string",
-			"defaultValue": "@{linkedService().domainname}"
-		},
-		"AdfByExample_properties_typeProperties_database": {
-			"type": "string",
-			"defaultValue": "@{linkedService().dbName}"
-		},
-		"AdfByExample_properties_typeProperties_userName": {
-			"type": "string",
-			"defaultValue": "@{linkedService().Username}"
-		},
 		"AnyBlobStorage_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://adfbyexample20240625sa.dfs.core.windows.net"
-		},
-		"AzureDataLakeStorage1_properties_typeProperties_url": {
-			"type": "string",
-			"defaultValue": "https://saadorchestrationstorage.dfs.core.windows.net/"
 		},
 		"AzureDataLakeStoragelskv_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://adfbyexample20240625sa.dfs.core.windows.net"
 		},
-		"AzureSqlDatabase1_properties_typeProperties_server": {
-			"type": "string",
-			"defaultValue": "adf-orchestration-sql-server202406241.database.windows.net"
-		},
-		"AzureSqlDatabase1_properties_typeProperties_database": {
-			"type": "string",
-			"defaultValue": "AzureSQLDatabase"
-		},
-		"AzureSqlDatabase1_properties_typeProperties_userName": {
-			"type": "string",
-			"defaultValue": "afara"
-		},
-		"OrchestrationAzureBlobStorage1_properties_typeProperties_url": {
-			"type": "string",
-			"defaultValue": "https://saadorchestrationstorage.dfs.core.windows.net/"
-		},
-		"adfbyexample20240625sa_properties_typeProperties_url": {
-			"type": "string",
-			"defaultValue": "https://adfbyexample20240625sa.dfs.core.windows.net/"
-		},
-		"adfbyexample2024kv_properties_typeProperties_baseUrl": {
-			"type": "string",
-			"defaultValue": "https://ADFBYEXAMPLE2024KV.vault.azure.net/"
-		},
 		"adfcookbookls_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://saadorchestrationstorage.dfs.core.windows.net"
-		},
-		"trigger_blob_addes_properties_typeProperties_scope": {
-			"type": "string",
-			"defaultValue": "/subscriptions/1de1c601-a1fc-4be0-b44f-bdb33bb4c6a9/resourceGroups/RG_COOKBOOK/providers/Microsoft.Storage/storageAccounts/saadorchestrationstorage"
 		}
 	},
 	"variables": {
 		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
 	},
 	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/DestinationDataset_qtl')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "adfbyexample20240625sa",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "ADFByExample/Chapter2"
+				},
+				"annotations": [],
+				"type": "Binary",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileSystem": "sampledata"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/SourceDataset_qtl')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "adfbyexample20240625sa",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "ADFByExample/Chapter2"
+				},
+				"annotations": [],
+				"type": "Binary",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "azure-data-factory-by-example-main.zip",
+						"fileSystem": "landing"
+					},
+					"compression": {
+						"type": "ZipDeflate"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AnyBlobStorage')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"parameters": {
+					"ConnectionSecretName": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('AnyBlobStorage_properties_typeProperties_url')]",
+					"accountKey": {
+						"type": "AzureKeyVaultSecret",
+						"store": {
+							"referenceName": "adfbyexample2024kv",
+							"type": "LinkedServiceReference"
+						},
+						"secretName": {
+							"value": "@linkedService().ConnectionSecretName",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureDataLakeStoragelskv')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('AzureDataLakeStoragelskv_properties_typeProperties_url')]",
+					"accountKey": {
+						"type": "AzureKeyVaultSecret",
+						"store": {
+							"referenceName": "adfbyexample2024kv",
+							"type": "LinkedServiceReference"
+						},
+						"secretName": "dtlSecret"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/adfcookbookls')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"parameters": {
+					"ConnectionSecretName": {
+						"type": "string",
+						"defaultValue": "adfcookbookSecret"
+					}
+				},
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('adfcookbookls_properties_typeProperties_url')]",
+					"accountKey": {
+						"type": "AzureKeyVaultSecret",
+						"store": {
+							"referenceName": "adfbyexample2024kv",
+							"type": "LinkedServiceReference"
+						},
+						"secretName": {
+							"value": "@linkedService().ConnectionSecretName",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			"dependsOn": []
+		},
 		{
 			"name": "[concat(parameters('factoryName'), '/ABS_CSV_ CandyShack')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
@@ -221,10 +291,7 @@
 				},
 				"annotations": []
 			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/ABS_CSV_SweetTreats')]",
-				"[concat(variables('factoryId'), '/datasets/ASQL_dboSalesLoad')]"
-			]
+			"dependsOn": []
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/CopyPipeline_qtl')]",
@@ -442,10 +509,7 @@
 				},
 				"annotations": []
 			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/ABS_CSV_CandyShack')]",
-				"[concat(variables('factoryId'), '/datasets/ASQL_dboSalesLoad')]"
-			]
+			"dependsOn": []
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/ImportSTFormatFile')]",
@@ -889,12 +953,7 @@
 				},
 				"annotations": []
 			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/ABS_CSV')]",
-				"[concat(variables('factoryId'), '/datasets/ASQL_dboSalesLoad')]",
-				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase1')]",
-				"[concat(variables('factoryId'), '/datasets/AzureSQLTables')]"
-			]
+			"dependsOn": []
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/ImportSTFormatFile_Divert')]",
@@ -1543,130 +1602,7 @@
 				},
 				"annotations": []
 			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/ABS_CSV')]",
-				"[concat(variables('factoryId'), '/datasets/ASQL_dboSalesLoad')]",
-				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase1')]",
-				"[concat(variables('factoryId'), '/datasets/AzureSQLTables')]",
-				"[concat(variables('factoryId'), '/linkedServices/AdfByExample')]",
-				"[concat(variables('factoryId'), '/linkedServices/adfbyexample20240625sa')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ImportSTFormatFiles')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Get file list",
-						"type": "GetMetadata",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataset": {
-								"referenceName": "ABS_CSV",
-								"type": "DatasetReference",
-								"parameters": {
-									"Container": "sampledata",
-									"Directory": {
-										"value": "@pipeline().parameters.FolderPath",
-										"type": "Expression"
-									},
-									"LinkedServiceConnectionSecret": "dtlSecret",
-									"EscapeCharacter": "\\"
-								}
-							},
-							"fieldList": [
-								"exists",
-								"itemType",
-								"itemName",
-								"childItems"
-							],
-							"storeSettings": {
-								"type": "AzureBlobFSReadSettings",
-								"recursive": true,
-								"enablePartitionDiscovery": false
-							},
-							"formatSettings": {
-								"type": "DelimitedTextReadSettings"
-							}
-						}
-					},
-					{
-						"name": "ForEach1",
-						"type": "ForEach",
-						"dependsOn": [
-							{
-								"activity": "Get file list",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"items": {
-								"value": "@activity('Get file list').output.childItems",
-								"type": "Expression"
-							},
-							"isSequential": false,
-							"activities": [
-								{
-									"name": "Execute Pipeline1",
-									"type": "ExecutePipeline",
-									"dependsOn": [],
-									"policy": {
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"pipeline": {
-											"referenceName": "ImportSTFormatFile_Divert",
-											"type": "PipelineReference"
-										},
-										"waitOnCompletion": true,
-										"parameters": {
-											"Directory": {
-												"value": "@pipeline().parameters.FolderPath",
-												"type": "Expression"
-											},
-											"File": {
-												"value": "@item().name",
-												"type": "Expression"
-											}
-										}
-									}
-								}
-							]
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"parameters": {
-					"FolderPath": {
-						"type": "string",
-						"defaultValue": "azure-data-factory-by-example-main/SampleData/NaughtyButNice"
-					}
-				},
-				"folder": {
-					"name": "ADFByExample/Chapter6"
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/ABS_CSV')]",
-				"[concat(variables('factoryId'), '/pipelines/ImportSTFormatFile_Divert')]"
-			]
+			"dependsOn": []
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/ImportSTFormatFolder')]",
@@ -2041,12 +1977,7 @@
 				},
 				"annotations": []
 			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/ABS_CSV_SweetTreats')]",
-				"[concat(variables('factoryId'), '/datasets/ASQL_dboSalesLoad')]",
-				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase1')]",
-				"[concat(variables('factoryId'), '/datasets/AzureSQLTables')]"
-			]
+			"dependsOn": []
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/ImportSugarCubeSales')]",
@@ -2173,243 +2104,7 @@
 				},
 				"annotations": []
 			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/ABS_JSON_SugarCube')]",
-				"[concat(variables('factoryId'), '/datasets/ASQL_dboSalesLoad')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ImportSugarCubeSales_copy1')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Copy data1",
-						"type": "Copy",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "JsonSource",
-								"storeSettings": {
-									"type": "AzureBlobFSReadSettings",
-									"recursive": true,
-									"wildcardFolderPath": "azure-data-factory-by-example-main/SampleData/SugarCube",
-									"wildcardFileName": "*.json",
-									"enablePartitionDiscovery": false
-								},
-								"formatSettings": {
-									"type": "JsonReadSettings"
-								}
-							},
-							"sink": {
-								"type": "AzureSqlSink",
-								"preCopyScript": "TRUNCATE table dbo.Sales_LOAD",
-								"writeBehavior": "insert",
-								"sqlWriterUseTableLock": false,
-								"disableMetricsCollection": false
-							},
-							"enableStaging": false,
-							"translator": {
-								"type": "TabularTranslator",
-								"mappings": [
-									{
-										"source": {
-											"path": "[['Product']"
-										},
-										"sink": {
-											"name": "Product",
-											"type": "String"
-										}
-									},
-									{
-										"source": {
-											"path": "[['ManufacturerProductCode']"
-										},
-										"sink": {
-											"name": "ManufacturerProductCode",
-											"type": "String"
-										}
-									},
-									{
-										"source": {
-											"path": "[['Units']"
-										},
-										"sink": {
-											"name": "UnitsSold",
-											"type": "Int32"
-										}
-									},
-									{
-										"source": {
-											"path": "[['Value']"
-										},
-										"sink": {
-											"name": "SalesValueUSD",
-											"type": "Decimal"
-										}
-									},
-									{
-										"source": {
-											"path": "$['Month']"
-										},
-										"sink": {
-											"name": "SalesMonth",
-											"type": "DateTime"
-										}
-									},
-									{
-										"source": {
-											"path": "$['Company']"
-										},
-										"sink": {
-											"name": "Retailer",
-											"type": "String"
-										}
-									}
-								],
-								"collectionReference": "$['Sales']"
-							}
-						},
-						"inputs": [
-							{
-								"referenceName": "ABS_JSON_AZURE_DATALAKE_STORAGE_LS_KV",
-								"type": "DatasetReference",
-								"parameters": {
-									"Container": "sampledata",
-									"Directory": ".",
-									"File": "."
-								}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "ASQL_dboSalesLoad",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						]
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"folder": {
-					"name": "ADFByExample/Chapter5"
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/ABS_JSON_AZURE_DATALAKE_STORAGE_LS_KV')]",
-				"[concat(variables('factoryId'), '/datasets/ASQL_dboSalesLoad')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ImportSweetTreatsAndDesserts4All')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "ImportSweetTreats",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "ImportSweetTreats_copy1",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "ImportSTFormatFolder",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"WildcardFolderPath": {
-									"value": "azure-data-factory-by-example-main/SampleData/Desserts4All",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "ImportSweetTreats_copy1",
-						"type": "ExecutePipeline",
-						"dependsOn": [],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "ImportSTFormatFolder",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"WildcardFolderPath": {
-									"value": "azure-data-factory-by-example-main/SampleData/SweetTreats",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Set variable1",
-						"type": "SetVariable",
-						"dependsOn": [
-							{
-								"activity": "ImportSweetTreats",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"variableName": "ReturnedValue",
-							"value": {
-								"value": "@activity('ImportSweetTreats_copy1').output.pipelineReturnValue.PipelineRunSeqNo",
-								"type": "Expression"
-							}
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"variables": {
-					"ReturnedValue": {
-						"type": "Integer"
-					}
-				},
-				"folder": {
-					"name": "ADFByExample/Chapter5"
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/ImportSTFormatFolder')]"
-			]
+			"dependsOn": []
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/ImportSweetTreatsSales')]",
@@ -2548,10 +2243,7 @@
 				},
 				"annotations": []
 			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/ABS_CSV_SweetTreats')]",
-				"[concat(variables('factoryId'), '/datasets/ASQL_dboSalesLoad')]"
-			]
+			"dependsOn": []
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/ImportSweetTreatsSales_Audit')]",
@@ -2881,12 +2573,7 @@
 				},
 				"annotations": []
 			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/ABS_CSV_SweetTreats')]",
-				"[concat(variables('factoryId'), '/datasets/ASQL_dboSalesLoad')]",
-				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase1')]",
-				"[concat(variables('factoryId'), '/datasets/AzureSQLTables')]"
-			]
+			"dependsOn": []
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/ImportSweetTreatsSales_Audit_copy2')]",
@@ -3216,12 +2903,7 @@
 				},
 				"annotations": []
 			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/ABS_CSV_SweetTreats')]",
-				"[concat(variables('factoryId'), '/datasets/ASQL_dboSalesLoad')]",
-				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase1')]",
-				"[concat(variables('factoryId'), '/datasets/AzureSQLTables')]"
-			]
+			"dependsOn": []
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/IngestHandyCandyMessages')]",
@@ -3340,10 +3022,7 @@
 				},
 				"annotations": []
 			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/ABS_JSON_HandyCandy')]",
-				"[concat(variables('factoryId'), '/datasets/ABS_PAR_HandyCandy')]"
-			]
+			"dependsOn": []
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/pipeline1')]",
@@ -3422,10 +3101,7 @@
 				},
 				"annotations": []
 			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/AzureSqlTable1')]",
-				"[concat(variables('factoryId'), '/datasets/ABS_CSV')]"
-			]
+			"dependsOn": []
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/pl_orchestration_recipe_1')]",
@@ -3568,10 +3244,7 @@
 				"annotations": [],
 				"lastPublishTime": "2024-06-25T09:31:14Z"
 			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/CsvData')]",
-				"[concat(variables('factoryId'), '/datasets/AzureSQLTables')]"
-			]
+			"dependsOn": []
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/pl_orchestration_recipe_2')]",
@@ -3671,10 +3344,7 @@
 				"annotations": [],
 				"lastPublishTime": "2024-06-25T09:31:14Z"
 			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/CsvDataFolder')]",
-				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase1')]"
-			]
+			"dependsOn": []
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/pl_orchestration_recipe_3')]",
@@ -3852,1768 +3522,6 @@
 				},
 				"annotations": [],
 				"lastPublishTime": "2024-06-25T09:31:14Z"
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/CsvDataFolder')]",
-				"[concat(variables('factoryId'), '/datasets/CsvData')]",
-				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase1')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/pl_orchestration_recipe_4')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Copy From Blob to Azure SQL",
-						"type": "Copy",
-						"dependsOn": [
-							{
-								"activity": "Backup Copy Activity",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "DelimitedTextSource",
-								"storeSettings": {
-									"type": "AzureBlobFSReadSettings",
-									"recursive": true,
-									"enablePartitionDiscovery": false
-								},
-								"formatSettings": {
-									"type": "DelimitedTextReadSettings"
-								}
-							},
-							"sink": {
-								"type": "AzureSqlSink",
-								"preCopyScript": "Truncate table Airline",
-								"writeBehavior": "insert",
-								"sqlWriterUseTableLock": false,
-								"disableMetricsCollection": false
-							},
-							"enableStaging": false,
-							"translator": {
-								"type": "TabularTranslator",
-								"typeConversion": true,
-								"typeConversionSettings": {
-									"allowDataTruncation": true,
-									"treatBooleanAsNumber": false
-								}
-							}
-						},
-						"inputs": [
-							{
-								"referenceName": "CsvData",
-								"type": "DatasetReference",
-								"parameters": {
-									"fileName": "airlines.csv"
-								}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "AzureSQLTables",
-								"type": "DatasetReference",
-								"parameters": {
-									"tableName": "Airlines"
-								}
-							}
-						]
-					},
-					{
-						"name": "Backup Copy Activity",
-						"type": "Copy",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "AzureSqlSource",
-								"queryTimeout": "02:00:00",
-								"partitionOption": "None"
-							},
-							"sink": {
-								"type": "DelimitedTextSink",
-								"storeSettings": {
-									"type": "AzureBlobFSWriteSettings"
-								},
-								"formatSettings": {
-									"type": "DelimitedTextWriteSettings",
-									"quoteAllText": true,
-									"fileExtension": ".txt"
-								}
-							},
-							"enableStaging": false,
-							"translator": {
-								"type": "TabularTranslator",
-								"typeConversion": true,
-								"typeConversionSettings": {
-									"allowDataTruncation": true,
-									"treatBooleanAsNumber": false
-								}
-							}
-						},
-						"inputs": [
-							{
-								"referenceName": "AzureSQLTables",
-								"type": "DatasetReference",
-								"parameters": {
-									"tableName": "Airline"
-								}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "CsvData",
-								"type": "DatasetReference",
-								"parameters": {
-									"fileName": "@concat('Airlines-', utcnow(), '.backup' )"
-								}
-							}
-						]
-					},
-					{
-						"name": "On Success",
-						"type": "SqlServerStoredProcedure",
-						"dependsOn": [
-							{
-								"activity": "Copy From Blob to Azure SQL",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"storedProcedureName": "[[dbo].[InsertPipelineLog]",
-							"storedProcedureParameters": {
-								"PipelineID": {
-									"value": {
-										"value": "@pipeline().Pipeline",
-										"type": "Expression"
-									},
-									"type": "String"
-								},
-								"RunID": {
-									"value": {
-										"value": "@pipeline().RunId",
-										"type": "Expression"
-									},
-									"type": "String"
-								},
-								"Status": {
-									"value": "Success",
-									"type": "String"
-								},
-								"UpdatedAt": {
-									"value": {
-										"value": "@utcnow()",
-										"type": "Expression"
-									},
-									"type": "DateTime"
-								}
-							}
-						},
-						"linkedServiceName": {
-							"referenceName": "AzureSqlDatabase1",
-							"type": "LinkedServiceReference"
-						}
-					},
-					{
-						"name": "On Failure",
-						"type": "SqlServerStoredProcedure",
-						"dependsOn": [
-							{
-								"activity": "Copy From Blob to Azure SQL",
-								"dependencyConditions": [
-									"Failed"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"storedProcedureName": "[[dbo].[InsertPipelineLog]",
-							"storedProcedureParameters": {
-								"PipelineID": {
-									"value": {
-										"value": "@pipeline().Pipeline",
-										"type": "Expression"
-									},
-									"type": "String"
-								},
-								"RunID": {
-									"value": {
-										"value": "@pipeline().RunId",
-										"type": "Expression"
-									},
-									"type": "String"
-								},
-								"Status": {
-									"value": "Failure",
-									"type": "String"
-								},
-								"UpdatedAt": {
-									"value": {
-										"value": "@utcnow()",
-										"type": "Expression"
-									},
-									"type": "DateTime"
-								}
-							}
-						},
-						"linkedServiceName": {
-							"referenceName": "AzureSqlDatabase1",
-							"type": "LinkedServiceReference"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"folder": {
-					"name": "COOKBOOK"
-				},
-				"annotations": [],
-				"lastPublishTime": "2024-06-25T09:31:14Z"
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/CsvData')]",
-				"[concat(variables('factoryId'), '/datasets/AzureSQLTables')]",
-				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase1')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/pl_orchestration_recipe_5_child')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Get Email Recipients",
-						"type": "Lookup",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "AzureSqlSource",
-								"sqlReaderQuery": "SELECT * FROM [dbo].[EmailRecipient]",
-								"queryTimeout": "02:00:00",
-								"partitionOption": "None"
-							},
-							"dataset": {
-								"referenceName": "AzureSQLTables",
-								"type": "DatasetReference",
-								"parameters": {
-									"tableName": "EmailRecipient"
-								}
-							},
-							"firstRowOnly": false
-						}
-					},
-					{
-						"name": "ForEach1",
-						"type": "ForEach",
-						"dependsOn": [
-							{
-								"activity": "Get Email Recipients",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"items": {
-								"value": "@activity('Get Email Recipients').output.value",
-								"type": "Expression"
-							},
-							"activities": [
-								{
-									"name": "Send Email",
-									"type": "WebActivity",
-									"dependsOn": [],
-									"policy": {
-										"timeout": "0.12:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"method": "POST",
-										"headers": {
-											"Content-Type": "application/json"
-										},
-										"url": "https://prod2-08.francecentral.logic.azure.com:443/workflows/3d587281150c46e3ab41c0110763913e/triggers/When_a_HTTP_request_is_received/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2FWhen_a_HTTP_request_is_received%2Frun&sv=1.0&sig=ZyAOWpG1X7XJZ18APtF1-QQFN-81ZyXDz5RKgSO8G2g",
-										"body": {
-											"value": "@json(concat('{\"emailAddress\": \"', item().emailAddress,'\", \"subject\": \"ADF Pipeline Failure\", \"messageBody\": \"ADFPipeline Failed\"}'))",
-											"type": "Expression"
-										}
-									}
-								}
-							]
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"folder": {
-					"name": "COOKBOOK"
-				},
-				"annotations": [],
-				"lastPublishTime": "2024-06-25T09:31:14Z"
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/AzureSQLTables')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/pl_orchestration_recipe_5_parent')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Copy From Blob to Azure SQL",
-						"type": "Copy",
-						"dependsOn": [
-							{
-								"activity": "Backup Copy Activity",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "DelimitedTextSource",
-								"storeSettings": {
-									"type": "AzureBlobFSReadSettings",
-									"recursive": true,
-									"enablePartitionDiscovery": false
-								},
-								"formatSettings": {
-									"type": "DelimitedTextReadSettings"
-								}
-							},
-							"sink": {
-								"type": "AzureSqlSink",
-								"preCopyScript": "Truncate table Airline",
-								"writeBehavior": "insert",
-								"sqlWriterUseTableLock": false,
-								"disableMetricsCollection": false
-							},
-							"enableStaging": false,
-							"translator": {
-								"type": "TabularTranslator",
-								"typeConversion": true,
-								"typeConversionSettings": {
-									"allowDataTruncation": true,
-									"treatBooleanAsNumber": false
-								}
-							}
-						},
-						"inputs": [
-							{
-								"referenceName": "CsvData",
-								"type": "DatasetReference",
-								"parameters": {
-									"fileName": "airlines.csv"
-								}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "AzureSQLTables",
-								"type": "DatasetReference",
-								"parameters": {
-									"tableName": "Airlines"
-								}
-							}
-						]
-					},
-					{
-						"name": "Backup Copy Activity",
-						"type": "Copy",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "AzureSqlSource",
-								"queryTimeout": "02:00:00",
-								"partitionOption": "None"
-							},
-							"sink": {
-								"type": "DelimitedTextSink",
-								"storeSettings": {
-									"type": "AzureBlobFSWriteSettings"
-								},
-								"formatSettings": {
-									"type": "DelimitedTextWriteSettings",
-									"quoteAllText": true,
-									"fileExtension": ".txt"
-								}
-							},
-							"enableStaging": false,
-							"translator": {
-								"type": "TabularTranslator",
-								"typeConversion": true,
-								"typeConversionSettings": {
-									"allowDataTruncation": true,
-									"treatBooleanAsNumber": false
-								}
-							}
-						},
-						"inputs": [
-							{
-								"referenceName": "AzureSQLTables",
-								"type": "DatasetReference",
-								"parameters": {
-									"tableName": "Airline"
-								}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "CsvData",
-								"type": "DatasetReference",
-								"parameters": {
-									"fileName": "@concat('Airlines-', utcnow(), '.backup' )"
-								}
-							}
-						]
-					},
-					{
-						"name": "On Success",
-						"type": "SqlServerStoredProcedure",
-						"dependsOn": [
-							{
-								"activity": "Copy From Blob to Azure SQL",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"storedProcedureName": "[[dbo].[InsertPipelineLog]",
-							"storedProcedureParameters": {
-								"PipelineID": {
-									"value": {
-										"value": "@pipeline().Pipeline",
-										"type": "Expression"
-									},
-									"type": "String"
-								},
-								"RunID": {
-									"value": {
-										"value": "@pipeline().RunId",
-										"type": "Expression"
-									},
-									"type": "String"
-								},
-								"Status": {
-									"value": "Success",
-									"type": "String"
-								},
-								"UpdatedAt": {
-									"value": {
-										"value": "@utcnow()",
-										"type": "Expression"
-									},
-									"type": "DateTime"
-								}
-							}
-						},
-						"linkedServiceName": {
-							"referenceName": "AzureSqlDatabase1",
-							"type": "LinkedServiceReference"
-						}
-					},
-					{
-						"name": "Send Email On Failure",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Copy From Blob to Azure SQL",
-								"dependencyConditions": [
-									"Failed"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "pl_orchestration_recipe_5_child",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {}
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"folder": {
-					"name": "COOKBOOK"
-				},
-				"annotations": [],
-				"lastPublishTime": "2024-06-25T09:31:14Z"
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/CsvData')]",
-				"[concat(variables('factoryId'), '/datasets/AzureSQLTables')]",
-				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase1')]",
-				"[concat(variables('factoryId'), '/pipelines/pl_orchestration_recipe_5_child')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/pl_orchestration_recipe_7_trigger')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "CsvDataFolder Metadata",
-						"type": "GetMetadata",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataset": {
-								"referenceName": "CsvDataFolder",
-								"type": "DatasetReference",
-								"parameters": {}
-							},
-							"fieldList": [
-								"itemName",
-								"lastModified",
-								"childItems"
-							],
-							"storeSettings": {
-								"type": "AzureBlobFSReadSettings",
-								"recursive": true,
-								"enablePartitionDiscovery": false
-							},
-							"formatSettings": {
-								"type": "DelimitedTextReadSettings"
-							}
-						}
-					},
-					{
-						"name": "ForEachFileInDataFolder",
-						"type": "ForEach",
-						"dependsOn": [
-							{
-								"activity": "Filter for Backup",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"items": {
-								"value": "@activity('Filter for Backup').output.Value",
-								"type": "Expression"
-							},
-							"activities": [
-								{
-									"name": "Copy data1",
-									"type": "Copy",
-									"dependsOn": [],
-									"policy": {
-										"timeout": "0.12:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"source": {
-											"type": "DelimitedTextSource",
-											"storeSettings": {
-												"type": "AzureBlobFSReadSettings",
-												"recursive": true,
-												"enablePartitionDiscovery": false
-											},
-											"formatSettings": {
-												"type": "DelimitedTextReadSettings"
-											}
-										},
-										"sink": {
-											"type": "DelimitedTextSink",
-											"storeSettings": {
-												"type": "AzureBlobFSWriteSettings"
-											},
-											"formatSettings": {
-												"type": "DelimitedTextWriteSettings",
-												"quoteAllText": true,
-												"fileExtension": ".txt"
-											}
-										},
-										"enableStaging": false,
-										"translator": {
-											"type": "TabularTranslator",
-											"typeConversion": true,
-											"typeConversionSettings": {
-												"allowDataTruncation": true,
-												"treatBooleanAsNumber": false
-											}
-										}
-									},
-									"inputs": [
-										{
-											"referenceName": "CsvData",
-											"type": "DatasetReference",
-											"parameters": {
-												"fileName": "@item().name"
-											}
-										}
-									],
-									"outputs": [
-										{
-											"referenceName": "CsvBackups",
-											"type": "DatasetReference",
-											"parameters": {
-												"fileName": "@item().name"
-											}
-										}
-									]
-								},
-								{
-									"name": "Delete1",
-									"type": "Delete",
-									"dependsOn": [
-										{
-											"activity": "Copy data1",
-											"dependencyConditions": [
-												"Succeeded"
-											]
-										}
-									],
-									"policy": {
-										"timeout": "0.12:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"dataset": {
-											"referenceName": "CsvData",
-											"type": "DatasetReference",
-											"parameters": {
-												"fileName": "@item().name"
-											}
-										},
-										"enableLogging": false,
-										"storeSettings": {
-											"type": "AzureBlobFSReadSettings",
-											"recursive": true,
-											"enablePartitionDiscovery": false
-										}
-									}
-								}
-							]
-						}
-					},
-					{
-						"name": "Filter for Backup",
-						"type": "Filter",
-						"dependsOn": [
-							{
-								"activity": "CsvDataFolder Metadata",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"items": {
-								"value": "@activity('CsvDataFolder Metadata').output.childItems",
-								"type": "Expression"
-							},
-							"condition": {
-								"value": "@endswith(item().name, '.backup')",
-								"type": "Expression"
-							}
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"folder": {
-					"name": "COOKBOOK"
-				},
-				"annotations": [],
-				"lastPublishTime": "2024-06-25T09:31:14Z"
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/CsvDataFolder')]",
-				"[concat(variables('factoryId'), '/datasets/CsvData')]",
-				"[concat(variables('factoryId'), '/datasets/CsvBackups')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ABS_CSV')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureDataLakeStorage1",
-					"type": "LinkedServiceReference"
-				},
-				"parameters": {
-					"Container": {
-						"type": "string"
-					},
-					"Directory": {
-						"type": "string",
-						"defaultValue": "."
-					},
-					"LinkedServiceConnectionSecret": {
-						"type": "string"
-					},
-					"EscapeCharacter": {
-						"type": "string",
-						"defaultValue": "\\"
-					},
-					"fileName": {
-						"type": "string",
-						"defaultValue": "Airlines.csv"
-					}
-				},
-				"folder": {
-					"name": "ADFByExample/Chapter5"
-				},
-				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"fileName": {
-							"value": "@dataset().fileName",
-							"type": "Expression"
-						},
-						"folderPath": {
-							"value": "@dataset().Directory",
-							"type": "Expression"
-						},
-						"fileSystem": {
-							"value": "@dataset().Container",
-							"type": "Expression"
-						}
-					},
-					"columnDelimiter": ",",
-					"escapeChar": {
-						"value": "@dataset().EscapeCharacter",
-						"type": "Expression"
-					},
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage1')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ABS_CSV_CandyShack')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "adfbyexample20240625sa",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "ADFByExample/Chapter3"
-				},
-				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"fileName": "2020-04.csv",
-						"folderPath": "azure-data-factory-by-example-main/SampleData/CandyShack",
-						"fileSystem": "sampledata"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": [
-					{
-						"name": "SalesMonth",
-						"type": "String"
-					},
-					{
-						"name": "Retailer",
-						"type": "String"
-					},
-					{
-						"name": "Product",
-						"type": "String"
-					},
-					{
-						"name": "SalesValueUSD",
-						"type": "String"
-					},
-					{
-						"name": "UnitsSold",
-						"type": "String"
-					}
-				]
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/adfbyexample20240625sa')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ABS_CSV_SweetTreats')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "adfbyexample20240625sa",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "ADFByExample/Chapter3"
-				},
-				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"fileName": "*",
-						"folderPath": "azure-data-factory-by-example-main/SampleData/SweetTreats",
-						"fileSystem": "sampledata"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": [
-					{
-						"name": "SalesMonth",
-						"type": "String"
-					},
-					{
-						"name": "Retailer",
-						"type": "String"
-					},
-					{
-						"name": "Product",
-						"type": "String"
-					},
-					{
-						"name": "SalesValueUSD",
-						"type": "String"
-					},
-					{
-						"name": "UnitsSold",
-						"type": "String"
-					}
-				]
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/adfbyexample20240625sa')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ABS_JSON')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AnyBlobStorage",
-					"type": "LinkedServiceReference",
-					"parameters": {
-						"ConnectionSecretName": {
-							"value": "@dataset().LinkedServiceConnectionSecret",
-							"type": "Expression"
-						}
-					}
-				},
-				"parameters": {
-					"Container": {
-						"type": "string"
-					},
-					"Directory": {
-						"type": "string",
-						"defaultValue": "."
-					},
-					"File": {
-						"type": "string",
-						"defaultValue": "."
-					},
-					"LinkedServiceConnectionSecret": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "ADFByExample/Chapter5"
-				},
-				"annotations": [],
-				"type": "Json",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"fileName": {
-							"value": "@dataset().File",
-							"type": "Expression"
-						},
-						"folderPath": {
-							"value": "@dataset().Directory",
-							"type": "Expression"
-						},
-						"fileSystem": {
-							"value": "@dataset().Container",
-							"type": "Expression"
-						}
-					}
-				},
-				"schema": {}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/AnyBlobStorage')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ABS_JSON_AZURE_DATALAKE_STORAGE_LS_KV')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureDataLakeStoragelskv",
-					"type": "LinkedServiceReference"
-				},
-				"parameters": {
-					"Container": {
-						"type": "string"
-					},
-					"Directory": {
-						"type": "string",
-						"defaultValue": "."
-					},
-					"File": {
-						"type": "string",
-						"defaultValue": "."
-					}
-				},
-				"folder": {
-					"name": "ADFByExample/Chapter5"
-				},
-				"annotations": [],
-				"type": "Json",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"fileName": {
-							"value": "@dataset().File",
-							"type": "Expression"
-						},
-						"folderPath": {
-							"value": "@dataset().Directory",
-							"type": "Expression"
-						},
-						"fileSystem": {
-							"value": "@dataset().Container",
-							"type": "Expression"
-						}
-					}
-				},
-				"schema": {}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStoragelskv')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ABS_JSON_HandyCandy')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "adfbyexample20240625sa",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "ADFByExample/Chapter3"
-				},
-				"annotations": [],
-				"type": "Json",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"fileName": "00ccb325-17ce-4fbd-8ffe-c7cc9c94e04a.json",
-						"folderPath": "azure-data-factory-by-example-main/SampleData/HandyCandy",
-						"fileSystem": "sampledata"
-					}
-				},
-				"schema": {
-					"type": "object",
-					"properties": {
-						"TransactionId": {
-							"type": "string"
-						},
-						"TransactionDate": {
-							"type": "string"
-						},
-						"StoreId": {
-							"type": "string"
-						},
-						"Items": {
-							"type": "array",
-							"items": {
-								"type": "object",
-								"properties": {
-									"Product": {
-										"type": "string"
-									},
-									"Price": {
-										"type": "number"
-									}
-								}
-							}
-						}
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/adfbyexample20240625sa')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ABS_JSON_SugarCube')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "adfbyexample20240625sa",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "ADFByExample/Chapter3"
-				},
-				"annotations": [],
-				"type": "Json",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"fileName": "April.json",
-						"folderPath": "azure-data-factory-by-example-main/SampleData/SugarCube/2020/Q2",
-						"fileSystem": "sampledata"
-					}
-				},
-				"schema": {
-					"type": "object",
-					"properties": {
-						"Month": {
-							"type": "string"
-						},
-						"Company": {
-							"type": "string"
-						},
-						"Sales": {
-							"type": "array",
-							"items": {
-								"type": "object",
-								"properties": {
-									"Product": {
-										"type": "string"
-									},
-									"ManufacturerProductCode": {
-										"type": "string"
-									},
-									"Units": {
-										"type": "integer"
-									},
-									"Value": {
-										"type": "number"
-									}
-								}
-							}
-						}
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/adfbyexample20240625sa')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ABS_PAR_HandyCandy')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "adfbyexample20240625sa",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "ADFByExample/Chapter3"
-				},
-				"annotations": [],
-				"type": "Parquet",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"fileName": "HandyCandy.parquet",
-						"folderPath": "datalake",
-						"fileSystem": "output"
-					},
-					"compressionCodec": "snappy"
-				},
-				"schema": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/adfbyexample20240625sa')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ASQL_dboSalesLoad')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AdfByExample",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "ADFByExample/Chapter3"
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"schema": [
-					{
-						"name": "RowId",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "Retailer",
-						"type": "nvarchar"
-					},
-					{
-						"name": "SalesMonth",
-						"type": "date"
-					},
-					{
-						"name": "Product",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ManufacturerProductCode",
-						"type": "nvarchar"
-					},
-					{
-						"name": "SalesValueUSD",
-						"type": "decimal",
-						"precision": 18,
-						"scale": 2
-					},
-					{
-						"name": "UnitsSold",
-						"type": "int",
-						"precision": 10
-					}
-				],
-				"typeProperties": {
-					"schema": "dbo",
-					"table": "Sales_LOAD"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/AdfByExample')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/AzureSQLTables')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureSqlDatabase1",
-					"type": "LinkedServiceReference"
-				},
-				"parameters": {
-					"tableName": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "COOKBOOK"
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"schema": [],
-				"typeProperties": {
-					"schema": "dbo",
-					"table": {
-						"value": "@dataset().tableName",
-						"type": "Expression"
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase1')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/AzureSqlTable1')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AdfByExample",
-					"type": "LinkedServiceReference",
-					"parameters": {
-						"domainname": "adf-orchestration-sql-server202406241.database.windows.net",
-						"Username": "afara",
-						"Password": "Nourou27",
-						"dbName": "AzureSQLDatabase"
-					}
-				},
-				"parameters": {
-					"tableName": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "ADFByExample"
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"schema": [],
-				"typeProperties": {
-					"schema": "dbo",
-					"table": {
-						"value": "@dataset().tableName",
-						"type": "Expression"
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/AdfByExample')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/CsvBackups')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "OrchestrationAzureBlobStorage1",
-					"type": "LinkedServiceReference"
-				},
-				"parameters": {
-					"fileName": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "COOKBOOK"
-				},
-				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"fileSystem": "backups"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/OrchestrationAzureBlobStorage1')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/CsvData')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "OrchestrationAzureBlobStorage1",
-					"type": "LinkedServiceReference"
-				},
-				"parameters": {
-					"fileName": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "COOKBOOK"
-				},
-				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"fileName": {
-							"value": "@dataset().fileName",
-							"type": "Expression"
-						},
-						"fileSystem": "data"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/OrchestrationAzureBlobStorage1')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/CsvDataFolder')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "OrchestrationAzureBlobStorage1",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "COOKBOOK"
-				},
-				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"fileSystem": "data"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": [
-					{
-						"name": "ID",
-						"type": "String"
-					},
-					{
-						"name": "Name",
-						"type": "String"
-					},
-					{
-						"name": "Code",
-						"type": "String"
-					},
-					{
-						"name": "Country",
-						"type": "String"
-					}
-				]
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/OrchestrationAzureBlobStorage1')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/DelimitedText1')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureDataLakeStorage1",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "COOKBOOK"
-				},
-				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"fileName": "airlines.csv",
-						"folderPath": "output",
-						"fileSystem": "adfcookbook"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage1')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/DestinationDataset_qtl')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "adfbyexample20240625sa",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "ADFByExample/Chapter2"
-				},
-				"annotations": [],
-				"type": "Binary",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"fileSystem": "sampledata"
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/adfbyexample20240625sa')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/SourceDataset_qtl')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "adfbyexample20240625sa",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "ADFByExample/Chapter2"
-				},
-				"annotations": [],
-				"type": "Binary",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"fileName": "azure-data-factory-by-example-main.zip",
-						"fileSystem": "landing"
-					},
-					"compression": {
-						"type": "ZipDeflate"
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/adfbyexample20240625sa')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/AdfByExample')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"parameters": {
-					"domainname": {
-						"type": "string",
-						"defaultValue": "adf-orchestration-sql-server202406241.database.windows.net"
-					},
-					"Username": {
-						"type": "string",
-						"defaultValue": "afara"
-					},
-					"Password": {
-						"type": "string",
-						"defaultValue": "Nourou27"
-					},
-					"dbName": {
-						"type": "string",
-						"defaultValue": "AzureSQLDatabase"
-					}
-				},
-				"annotations": [],
-				"type": "AzureSqlDatabase",
-				"typeProperties": {
-					"server": "[parameters('AdfByExample_properties_typeProperties_server')]",
-					"database": "[parameters('AdfByExample_properties_typeProperties_database')]",
-					"encrypt": "mandatory",
-					"trustServerCertificate": false,
-					"authenticationType": "SQL",
-					"userName": "[parameters('AdfByExample_properties_typeProperties_userName')]",
-					"password": "@{linkedService().Password}"
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/AnyBlobStorage')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"parameters": {
-					"ConnectionSecretName": {
-						"type": "string"
-					}
-				},
-				"annotations": [],
-				"type": "AzureBlobFS",
-				"typeProperties": {
-					"url": "[parameters('AnyBlobStorage_properties_typeProperties_url')]",
-					"accountKey": {
-						"type": "AzureKeyVaultSecret",
-						"store": {
-							"referenceName": "adfbyexample2024kv",
-							"type": "LinkedServiceReference"
-						},
-						"secretName": {
-							"value": "@linkedService().ConnectionSecretName",
-							"type": "Expression"
-						}
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/adfbyexample2024kv')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/AzureDataLakeStorage1')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"type": "AzureBlobFS",
-				"typeProperties": {
-					"url": "[parameters('AzureDataLakeStorage1_properties_typeProperties_url')]",
-					"accountKey": {
-						"type": "SecureString",
-						"value": "[parameters('AzureDataLakeStorage1_accountKey')]"
-					}
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/AzureDataLakeStoragelskv')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"type": "AzureBlobFS",
-				"typeProperties": {
-					"url": "[parameters('AzureDataLakeStoragelskv_properties_typeProperties_url')]",
-					"accountKey": {
-						"type": "AzureKeyVaultSecret",
-						"store": {
-							"referenceName": "adfbyexample2024kv",
-							"type": "LinkedServiceReference"
-						},
-						"secretName": "dtlSecret"
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/adfbyexample2024kv')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/AzureSqlDatabase1')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"type": "AzureSqlDatabase",
-				"typeProperties": {
-					"server": "[parameters('AzureSqlDatabase1_properties_typeProperties_server')]",
-					"database": "[parameters('AzureSqlDatabase1_properties_typeProperties_database')]",
-					"encrypt": "mandatory",
-					"trustServerCertificate": false,
-					"authenticationType": "SQL",
-					"userName": "[parameters('AzureSqlDatabase1_properties_typeProperties_userName')]",
-					"password": {
-						"type": "SecureString",
-						"value": "[parameters('AzureSqlDatabase1_password')]"
-					}
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/OrchestrationAzureBlobStorage1')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "Create an Azure Blob Storage account and name it adforchestrationstorage. When\ncreating the storage account, select the same region (that is, East US) as you selected\nwhen you created the Data Factory instance. This will reduce our costs when moving data.\n• Create a container named data within this storage account, and upload two CSV files to\nthe folder: airlines.csv and countries.csv (the files can be found on GitHub: https://\ngithub.com/PacktPublishing/Azure-Data-Factory-Cookbook/tree/master/data)",
-				"annotations": [],
-				"type": "AzureBlobFS",
-				"typeProperties": {
-					"url": "[parameters('OrchestrationAzureBlobStorage1_properties_typeProperties_url')]",
-					"accountKey": {
-						"type": "SecureString",
-						"value": "[parameters('OrchestrationAzureBlobStorage1_accountKey')]"
-					}
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/adfbyexample20240625sa')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"type": "AzureBlobFS",
-				"typeProperties": {
-					"url": "[parameters('adfbyexample20240625sa_properties_typeProperties_url')]",
-					"accountKey": {
-						"type": "SecureString",
-						"value": "[parameters('adfbyexample20240625sa_accountKey')]"
-					}
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/adfbyexample2024kv')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"type": "AzureKeyVault",
-				"typeProperties": {
-					"baseUrl": "[parameters('adfbyexample2024kv_properties_typeProperties_baseUrl')]"
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/adfcookbookls')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"parameters": {
-					"ConnectionSecretName": {
-						"type": "string",
-						"defaultValue": "adfcookbookSecret"
-					}
-				},
-				"annotations": [],
-				"type": "AzureBlobFS",
-				"typeProperties": {
-					"url": "[parameters('adfcookbookls_properties_typeProperties_url')]",
-					"accountKey": {
-						"type": "AzureKeyVaultSecret",
-						"store": {
-							"referenceName": "adfbyexample2024kv",
-							"type": "LinkedServiceReference"
-						},
-						"secretName": {
-							"value": "@linkedService().ConnectionSecretName",
-							"type": "Expression"
-						}
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/adfbyexample2024kv')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/trigger_blob_addes')]",
-			"type": "Microsoft.DataFactory/factories/triggers",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"runtimeState": "Stopped",
-				"pipelines": [],
-				"type": "BlobEventsTrigger",
-				"typeProperties": {
-					"blobPathBeginsWith": "/data/blobs/",
-					"ignoreEmptyBlobs": true,
-					"scope": "[parameters('trigger_blob_addes_properties_typeProperties_scope')]",
-					"events": [
-						"Microsoft.Storage.BlobCreated"
-					]
-				}
 			},
 			"dependsOn": []
 		}
