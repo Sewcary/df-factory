@@ -40,7 +40,10 @@
 						"storeSettings": {
 							"type": "AzureBlobFSReadSettings",
 							"recursive": true,
-							"wildcardFolderPath": "@pipeline().parameters.Directory ",
+							"wildcardFolderPath": {
+								"value": "@pipeline().parameters.Directory",
+								"type": "Expression"
+							},
 							"wildcardFileName": "*",
 							"enablePartitionDiscovery": false
 						},
@@ -175,7 +178,9 @@
 								"value": "@pipeline().parameters.Directory",
 								"type": "Expression"
 							},
-							"LinkedServiceConnectionSecret": "dtlSecret"
+							"LinkedServiceConnectionSecret": "dtlSecret",
+							"EscapeCharacter": "\\",
+							"fileName": "Airlines.csv"
 						}
 					}
 				],
