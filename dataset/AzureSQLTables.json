@@ -2,7 +2,7 @@
 	"name": "AzureSQLTables",
 	"properties": {
 		"linkedServiceName": {
-			"referenceName": "AzureSqlDatabase1",
+			"referenceName": "LS_ASQL",
 			"type": "LinkedServiceReference"
 		},
 		"parameters": {
