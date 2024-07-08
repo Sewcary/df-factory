@@ -3,7 +3,13 @@
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "AdfByExample",
-			"type": "LinkedServiceReference"
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"domainname": "ssql-adfbe.database.windows.net",
+				"Username": "afara",
+				"Password": "Nourou27",
+				"dbName": "ASQL_ADFBE"
+			}
 		},
 		"folder": {
 			"name": "ADFByExample/Chapter3"
