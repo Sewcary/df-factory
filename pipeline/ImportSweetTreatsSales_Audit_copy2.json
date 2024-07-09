@@ -208,7 +208,10 @@
 							"type": "Int32"
 						},
 						"RunEndDateTime": {
-							"value": "@utcnow()",
+							"value": {
+								"value": "@utcnow()",
+								"type": "Expression"
+							},
 							"type": "DateTime"
 						},
 						"RunSeqNo": {
@@ -312,7 +315,7 @@
 			}
 		},
 		"folder": {
-			"name": "ADFByExample/chapter4"
+			"name": "ADFByExample/Chapter4"
 		},
 		"annotations": []
 	}
