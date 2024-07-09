@@ -67,7 +67,7 @@
 						},
 						"logLocationSettings": {
 							"linkedServiceName": {
-								"referenceName": "adfbyexample20240625sa",
+								"referenceName": "AzureDataLakeStorage1",
 								"type": "LinkedServiceReference"
 							},
 							"path": "output/errors"
@@ -211,7 +211,7 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"storedProcedureName": "[dbo].[LogPipelineEnd]",
+					"storedProcedureName": "dbo.LogPipelineEnd",
 					"storedProcedureParameters": {
 						"FilesRead": {
 							"value": {
@@ -255,8 +255,14 @@
 					}
 				},
 				"linkedServiceName": {
-					"referenceName": "AzureSqlDatabase1",
-					"type": "LinkedServiceReference"
+					"referenceName": "AdfByExample",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"domainname": "ssql-adfbe.database.windows.net",
+						"Username": "afara",
+						"Password": "Nourou27",
+						"dbName": "ASQL_ADFBE"
+					}
 				}
 			},
 			{
@@ -564,7 +570,8 @@
 										"Container": "output",
 										"Directory": ".",
 										"LinkedServiceConnectionSecret": "dtlSecret",
-										"EscapeCharacter": "\""
+										"EscapeCharacter": "\"",
+										"fileName": "Airlines.csv"
 									}
 								}
 							],
@@ -614,7 +621,13 @@
 				},
 				"linkedServiceName": {
 					"referenceName": "AdfByExample",
-					"type": "LinkedServiceReference"
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"domainname": "ssql-adfbe.database.windows.net",
+						"Username": "afara",
+						"Password": "Nourou27",
+						"dbName": "ASQL_ADFBE"
+					}
 				}
 			}
 		],
