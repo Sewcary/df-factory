@@ -1,0 +1,9 @@
+{
+	"name": "myDataFactoryGithub",
+	"location": "francecentral",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "9b79fb36-02fd-4aaf-b3d2-03ef67ff9c14",
+		"tenantId": "248b58e1-dcea-4d35-9ddd-5613921da81f"
+	}
+}
